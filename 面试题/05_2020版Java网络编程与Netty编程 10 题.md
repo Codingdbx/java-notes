@@ -150,8 +150,6 @@ NioEventLoopGroup 事件循环组：
 
 
 
-
-
 ### Netty 线程模型
 
 传统阻塞I/O模型
