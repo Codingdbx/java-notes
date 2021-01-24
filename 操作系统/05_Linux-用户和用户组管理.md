@@ -519,7 +519,7 @@ Changing password for anny.
 
 ### 4.4 把用户添加入组或从组中删除
 
-`gpasswd` [选项] [组名]
+`gpasswd` [选项] [用户名]
 
 - `-a` 用户名：把用户加入组
 - `-d` 用户名：把用户从组中删除

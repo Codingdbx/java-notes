@@ -1,4 +1,4 @@
-# Linux 权限管理
+# Linux 文件系统管理
 
 ## 1 回顾分区和文件系统
 
@@ -199,7 +199,7 @@ Default mount options:    user_xattr acl
     | `atime/noatime` | 更新访问时间/不更新访问时间。访问分区文件时，是否更新文件的访问时间，默认为更新 |
     |  `async/sync`   |                    异步/同步，默认为异步                     |
     |  `auto/noauto`  | 自动/手动，mount -a命令执行时，是否会自动安装/etc/fstab文件内容挂载，默认为自动 |
-    |    defaults     | 定义默认值，相当于rw，suid，dev，exec，auto，nouser，async 这七个选项 |
+    |   `defaults`    | 定义默认值，相当于rw，suid，dev，exec，auto，nouser，async 这七个选项 |
     |  `exec/noexec`  | 执行/不执行，设定是否允许在文件系统中执行可执行文件，默认是exec允许 |
     |    `remount`    |     重新挂载已经挂载的文件系统，一般用于指定修改特殊权限     |
     |     `rw/ro`     |    读写/只读，文件系统挂载时，是否具有读写权限，默认是rw     |
@@ -397,8 +397,6 @@ http://www.tuxera.com/community/ntfs-3g-download/
 #### /etc/fstab 文件修复
 
 `mount -o remount,rw /`    #其实就是重新挂载
-
-
 
 
 

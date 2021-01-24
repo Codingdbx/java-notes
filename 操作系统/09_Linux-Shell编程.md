@@ -5,10 +5,12 @@
 ### 1.1 正则表达式与通配符
 
 - 正则表达式
-  - 正则表达式用来在文件中匹配符合条件的字符串，正则是包含匹配。grep、 awk、sed等命令可以支持正则表达式。
-
+  - 正则表达式用来在文件中匹配符合条件的字符串，正则是包含匹配。
+- grep、 awk、sed等命令可以支持正则表达式。
+  
 - 通配符
-  - 通配符用来匹配符合条件的文件名，通配符是完全匹配。ls、 find、 cp这些命令不支持正则表达式，所以只能使用shell自己的通配符来进行匹配了。
+  - 通配符用来匹配符合条件的文件名，通配符是完全匹配。
+  - ls、 find、 cp这些命令不支持正则表达式，所以只能使用shell自己的通配符来进行匹配了。
 
 ### 1.2 基础正则表达式
 
@@ -25,70 +27,70 @@
 | `\{n,\}`  | 表示其前面的字符出现不小于n次。例如: `[0-9]\{2,\}` 表示两位及以上的数字。 |
 | `\{n,m\}` | 表示其前面的字符至少出现n次，最多出现m次。<br />例如: `[a-z]\{6,8\}` 匹配6到8位的小写字母。 |
 
-#### "`*`" 
+- `*`     #前一个字符匹配0次，或任意多次。
 
-前一个字符匹配0次，或任意多次。
+  ```
+  grep "a*"   test_rule.txt     #匹配所有内容，包括空白行
+  grep "aa*"   test_rule.txt    #匹配至少包含有一个a的行
+  grep "aaa*"   test_rule.txt   #匹配最少包含两个连续a的字符串
+  grep "aaaaa*"  test_rule.txt  #则会匹配最少包含四个连续a的字符串
+  ```
 
-- grep "`a*`"  test_rule.txt     #匹配所有内容，包括空白行
-- grep ''`aa*`" test_rule.txt    #匹配至少包含有一个a的行
-- grep "`aaa*`" test_rule.txt   #匹配最少包含两个连续a的字符串
-- grep "`aaaaa*`" test_rule.txt    #则会匹配最少包含四个连续a的字符串
+- `.`       #匹配除了换行符外任意一个字符。
 
-#### “`.`” 
+  ```
+  grep "s..d"  test_rule.txt   #会匹配在s和d这两个字母之间一定有两个字符的单词
+  grep "s.*d"  test_rule.txt   #匹配在s和d字母之间有任意字符
+  grep ".*“   test_rule.txt    #匹配所有内容
+  ```
 
-匹配除了换行符外任意一个字符。
+- `^`、`$`         #`^`匹配行首，`$`匹配行尾。
 
-- grep "`s..d`"  test_rule.txt   # “`s..d`”会匹配在s和d这两个字母之间一定有两个字符的单词
-- grep "`s.*d`"  test_rule.txt    #匹配在s和d字母之间有任意字符
-- grep  "`.*`“   test_rule.txt   #匹配所有内容
+  ```
+  grep "^M"'  test_rule.txt       #匹配以大写M开头的行
+  grep "n$"    test_rule.txt      #匹配以小写n结尾的行
+  grep -n "^$"  test_rule.txt     #会匹配空白行
+  ```
 
-#### “`^`”、"`$`”
+- `[]`       #匹配中括号中指定的任意一个字符，只匹配一个字符。
 
-“`^`”匹配行首，"`$`”匹配行尾。
+  ```
+  grep "s[ao]id"  test_rule.txt   #匹配s和i字母中，要不是a、要不是o
+  grep "[0-9]"   test_rule.txt    #匹配任意一个数字
+  grep "^[a-z]"  test_rule.txt    #匹配用小写字母开头的行
+  ```
 
-- grep "`^M`"' test_rule.txt       #匹配以大写M开头的行
-- grep "`n$`" test_rule.txt      #匹配以小写n结尾的行
-- grep -n "`^$`"  test_rule.txt    #会匹配空白行
+- `[^]`      #匹配除中括号的字符以外的任意一个字符。
 
-#### “`[]`” 
+  ```
+  grep "^[^a-z]"   test_rule.txt    #匹配不用小写字母开头的行
+  grep "^[^a-zA-Z]"  test_rule.txt    #匹配不用字母开头的行
+  ```
 
-匹配中括号中指定的任意-一个字符，只匹配一个字符。
+- `\`      #转义符。
 
-- grep "`s[ao]id`"  test_rule.txt      #匹配 s 和 i 字母中，要不是a、要不是o
-- grep "`[0-9]`"  test_ rule.txt    #匹配任意一个数字
-- grep "`^[a-z]`" test_rule.txt    #匹配用小写字母开头的行
+  ```
+  grep "\.$" test_rule.txt    #匹配使用 “.” 结尾的行
+  ```
 
-#### “`[^]`” 
+- `\{n\}`       #表示其前面的字符恰好出现n次。
 
-匹配除中括号的字符以外的任意一个字符。
+  ```
+  grep "a\{3\}"  test_rule.txt      #匹配a字母连续出现三次的字符串
+  grep "[0-9]\{3\}"  test_rule.txt   #匹配包含连续的三个数字的字符串
+  ```
 
-- grep "`^[^a-z]`" test_rule.txt  #匹配不用小写字母开头的行
-- grep "`^[^a-zA-Z]`" test_rule.txt    #匹配不用字母开头的行
+- `\{n,\}`      #表示其前面的字符出现不小于n次。
 
-#### “`\`” 
+  ```
+  grep "^[0-9]\{3,\}[a-z]" test_rule.txt  #匹配最少用连续三个数字开头的行
+  ```
 
-转义符。
+- `\{n,m\}`     #匹配其前面的字符至少出现n次，最多出现m次。
 
-- grep "`\.$`" test_rule.txt    #匹配使用 “`.`” 结尾的行
-
-#### “`\{n\}`” 
-
-表示其前面的字符恰好出现n次。
-
-- grep "`a\{3\}`" test_rule.txt   #匹配a字母连续出现三次的字符串
-- grep "`[0-9]\{3\}`" test_ rule.txt   #匹配包含连续的三个数字的字符串
-
-#### “`\{n,\}`” 
-
-表示其前面的字符出现不小于n次。
-
-- grep "`^[0-9]\{3,\}[a-z]`" test_rule.txt  #匹配最少用连续三个数字开头的行
-
-#### “`\{n,m\}`” 
-
-匹配其前面的字符至少出现n次，最多出现m次。
-
-- grep "`sa\{1,3\}i`" test_rule.txt  #匹配在字母s和字母i之间有最少一个a，最多三个a
+  ```
+  grep "sa\{1,3\}i" test_rule.txt  #匹配在字母s和字母i之间有最少一个a，最多三个a
+  ```
 
 
 
@@ -105,7 +107,7 @@
 - `-f` 列号   #提取第几列
 - `-d` 分隔符    #按照指定分隔符分割列
 
-案例：
+案例1：`cut -f 2 student.txt` 
 
 ```
 # vi student.txt 
@@ -115,8 +117,6 @@ ID	Name	gender	Mark
 3	Gao	M	83
 ```
 
-#### cut -f 2 student.txt 
-
 ```
 # cut -f 2 student.txt 
 Name
@@ -125,7 +125,7 @@ Sc
 Gao
 ```
 
-####  cut -f 2,3 student.txt 
+案例2：`cut -f 2,3 student.txt` 
 
 ```
 # cut -f 2,3 student.txt 
@@ -135,7 +135,7 @@ Sc	M
 Gao	M
 ```
 
-#### cut -d ":" -f 1,3 /etc/passwd
+案例3：`cut -d ":" -f 1,3 /etc/passwd`
 
 ```
 # cut -d ":" -f 1,3 /etc/passwd
@@ -144,7 +144,7 @@ bin:1
 daemon:2
 ```
 
-#### cat /etc/passwd | grep /bin/bash | grep -v root | cut -d ":" -f 1
+案例4：`cat /etc/passwd | grep /bin/bash | grep -v root | cut -d ":" -f 1`
 
 ```
 # cat /etc/passwd | grep /bin/bash | grep -v root | cut -d ":" -f 1
@@ -167,7 +167,7 @@ user3
 
 `printf` 是格式化输出命令。非常麻烦，但是 awk 命令识别它。
 
-#### printf '输出类型输出格式’  输出内容
+`printf`  [输出类型输出格式]  [输出内容]
 
 输出类型：
 

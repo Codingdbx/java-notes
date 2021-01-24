@@ -4,9 +4,7 @@
 
 ### 1.1 日志服务
 
-在CentOS 6.x中日志服务已经由rsyslogd取为代了原先的syslogd服务。rsyslogd日志服
-务更加先进，功能更多。但是不论该服务种程的使用，还是日志文件的格式其实都是和
-syslogd服务相兼容的，所以学习起来基本习出惯和syslogd服务一致。
+在CentOS 6.x中日志服务已经由rsyslogd取为代了原先的syslogd服务。rsyslogd日志服务更加先进，功能更多。但是不论该服务种程的使用，还是日志文件的格式其实都是和syslogd服务相兼容的，所以学习起来基本习出惯和syslogd服务一致。
 
 #### rsyslogd的新特点
 
