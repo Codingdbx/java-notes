@@ -127,7 +127,7 @@ R(S4)={c},   W(S4)={w}
 - Exit (退出)
   - 因停止或取消，被OS从执行状态释放
 
-#### 进程状态转换图
+#### 进程5状态转换图
 
 ![1612702997512](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1612702997512.png)
 
@@ -147,7 +147,61 @@ R(S4)={c},   W(S4)={w}
 
 ![1612703774353](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1612703774353.png)
 
+多个阻塞队列：不同的事件，阻塞的原因不同，就进入不同的队列。
+
 ![1612703999050](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1612703999050.png)
 
 #### 交换技术
 
+Swapping：对换技术交换技术
+
+将内存中暂时不能运行的进程，或暂时不用的数据和程序，`Swapping-out`到外存，以腾出足够的内存空间，把已具备运行条件的进程，或进程所需要的数据和程序，`Swapping-in`内存。
+
+#### 进程的挂起
+
+现代操作系统进程不只5状态，有些是7状态。挂起是其中一个状态。
+
+Suspended Processes
+
+- Processor is faster than I/O so all 
+
+  processes could be waiting for I/O
+
+- Swap these processes to disk to free up more memory
+
+- Blocked state becomes suspend state when swapped to disk
+
+意义：处理器空闲时，通过交换技术，使进程挂起状态。
+
+##### Reasons for Process Suspension
+
+- **Swapping:** The operating system needs to release sufficient main memory to bring in a process that is ready to execute.
+- **Other OS reason:** The operating system may supend a background or utility process or a process that is supected of causing a problem.
+- **Interactive user request:** A user may wish to suspend execution of a program for purposes of debugging or in connection with the use of a resource.
+- **Timing:** A process may be executed periodically (e.g, an accounting or system monitoring process) and may be suspended while waiting for the next time interval.
+- **Parent process request: **A parent process may wish to suspend execution of a descendent to examine or modify the supended process,or to coordinate the activity of various descendents.
+
+##### 被挂起进程的特征
+
+- 不能立即执行。
+
+- 可能是等待某事件发生。若是，则阻塞条件独立于挂起条件，即使阻塞事件发生，该进程也不能执行。
+
+  即阻塞解除后，也不能立马执行，阻塞和挂起是两个独立的过程。
+
+- 使之挂起的进程为：自身、其父进程、OS。
+
+- 只有挂起它的进程才能使之由挂起状态转换为其他状态。
+
+
+
+```
+
+
+```
+
+
+
+
+
+#### 进程7状态转换图

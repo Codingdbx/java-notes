@@ -50,9 +50,44 @@
 
 ![1607958994729](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1607958994729.png)
 
+#### 加密算法分类
+
+ ![img](https://img-blog.csdnimg.cn/20210126210714621.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FodXRkYng=,size_16,color_FFFFFF,t_70) 
+
+### 2.3 base64 编码
+
+- base64 不是加密算法 是可读性算法
+- base64 目的不是保护我们的数据，目的是可读性
+- base64 是由64个字符组成 大写A-Z，小写a-z,数字0-9，两个字符+和/
+- base58 一般用于比特币里面的一种编码方式
+- base58里面没有数字0，没有字母o,没有大写字母I和小写字母i，没有+和/  一共58个字符
+
+ 
+
+base64原理：
+
+三个字节为一组，一个字节是8位，一共24位，base64将三个字节转换为4组，每组6位。
+
+一个字节是8位，缺少2位，在高位进行补0。
+
+这样做的好处，base64取后面6位。前面的2位，会把它去掉，可以把base64控制到0-63之间。
+
+在base64里面3个字节为一组，如果不够三个字节，需要用 = 补齐。
+
+```java
+public class TestBase64 {
+	public static void main(String[] args) {
+        System.out.println(new String(Base64.getEncoder().encode("1".getBytes())));
+        System.out.println(new String(Base64.getEncoder().encode("12".getBytes())));
+        System.out.println(new String(Base64.getEncoder().encode("123".getBytes())));
+    }
+
+}
+```
 
 
-### 2.3 DES算法
+
+### 2.4 DES算法
 
 DES 是 Data Encryption Standard（数据加密标准）的缩写。由 IBM 公司研制的一种对称密码算法。DES 是一个分组加密算法，典型的DES以64位分组秘钥对数据进行加密，加密和解密用的是同一个算法。它的秘钥总长度是64位，其中前56位参与运算，8位作为校验码，不参与加密运算。秘钥可以是任意的56位的数。其保密性依赖于秘钥。
 
@@ -66,7 +101,7 @@ DES 是 Data Encryption Standard（数据加密标准）的缩写。由 IBM 公�
 
 ![1607958776911](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1607958776911.png)
 
-### 2.4 3DES算法
+### 2.5 3DES算法
 
 3DES又称Triple DES，是DES加密算法的一种模式，它使用3条56位的密钥对3DES数据进行三次加密。 
 
@@ -88,13 +123,13 @@ DES 是 Data Encryption Standard（数据加密标准）的缩写。由 IBM 公�
   * 秘钥1，2，3相同
     * 数据被加密一次，和DES效果一样
 
-### 2.5 AES算法
+### 2.6 AES算法
 
 AES（Advanced Encryption Standard）
 
 AES分组长度为128比特。有128，192，256比特三种。
 
-### 2.6 加密模式
+### 2.7 加密模式
 
 #### ECB 
 
@@ -119,7 +154,7 @@ AES分组长度为128比特。有128，192，256比特三种。
 
 
 
-### 2.7 填充模式
+### 2.8 填充模式
 
 #### NoPadding
 
