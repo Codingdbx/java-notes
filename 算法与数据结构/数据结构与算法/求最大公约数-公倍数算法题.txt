@@ -1,0 +1,34 @@
+1.求p,q 的最大公约数： 
+   
+  思路：若q=0,则最大公约数为p；若q!=0,则p除以q的得余数r(即p%q=r), p,q 的最大公约数为 q与r 的最大公约数
+
+  public static int gcd(int p,int q){
+
+     if(q==0) return p;
+
+     int r=p%q;
+
+     return gcd(q,r);
+  }
+
+  public static int gcd(int p, int q) {  
+        int r = p % q;  
+        while (r != 0) {  
+            p= q;  
+            q = r;  
+            r = p % q;  
+        }  
+        return q;  
+    }  
+
+2.求p,q 的最小公倍数
+ 
+  思路：先求出最大公约数，利用两数的乘积除以最大公约数得到最小公倍数
+  
+  int m = gcd(p,q);
+  int result= p*q/m;
+
+
+质数:又称素数，有无限个。质数定义为在大于1的自然数中，除了1和它本身以外不再有其他因数；
+
+互质数：公因数只有1的两个非零自然数，叫做互质数；
