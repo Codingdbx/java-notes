@@ -254,11 +254,47 @@ search localhost
 - `-t`：列出`TCP`协议端口
 - `-u`：列出`UDP`协议端口
 - `-n`：不使用域名与服务名，而使用`IP`地址和端口号
-
 - `-l`：仅列出在监听状态网络服务
 - `-a`：列出所有的网络连接
 - `-r`：列出路由列表，功能和route命令一致（可以看到网关地址）
-  - `netstat -rn`
+
+状态说明：
+
+| 套接字       | 功能                                                         |
+| ------------ | ------------------------------------------------------------ |
+| CLOSED       | 没有使用这个套接字                                           |
+| LISTEN       | 正在监听连接                                                 |
+| SYN_SENT     | 正在试图主动建立连接[发送SYN后还没有收到ACK]                 |
+| SYN_RECEIVED | 处于连接的初始同步状态[收到对方的SYN，但还没收到自己发过去的SYN的ACK] |
+| ESTABLISHED  | 连接已建立                                                   |
+| CLOSE_WAIT   | 正在等待关闭这个套接字[被动关闭的一方收到FIN]                |
+| FIN_WAIT_1   | 套接字已关闭，正在关闭连接[发送FIN，没有收到ACK也没有收到FIN] |
+| CLOSING      | 套接字已关闭                                                 |
+| LAST_ACK     | 正在等待本地套接字的关闭确认[被动方在CLOSE_WAIT状态下发送FIN] |
+| FIN_WAIT_2   | 正在等待远程套接字关闭[在FIN_WAIT_1状态下收到发过去FIN对应的ACK] |
+| TIME_WAIT    | 正在等待远程套接字的关闭传送[FIN、ACK、FIN、ACK都完毕，这是主动方的最后一个状态，在过了2ms时间后变为CLOSED状态] |
+
+#### lsof 命令
+
+- `-i` 显示所有连接
+
+  ```shell
+  #lsof  -i
+  ```
+
+- `-i:port`  来显示与指定端口相关的网络信息
+
+  ```shell
+  #lsof  -i:22
+  ```
+
+-  搜索`ESTABLISHED`”
+
+  ```shell
+  #lsof  -i | grep  -i ESTABLISHED
+  ```
+
+  
 
 #### route 命令
 

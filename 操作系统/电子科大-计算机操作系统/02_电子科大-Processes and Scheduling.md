@@ -2,7 +2,7 @@
 
 ## 1 进程的描述与控制
 
-进程：结构、PCB、状态
+进程：结构、PCB、状态。
 
 
 
@@ -49,7 +49,7 @@ R(S4)={c},   W(S4)={w}
 
 
 
-#### Process
+#### 进程 Process
 
 - Also called a task
 
@@ -63,14 +63,14 @@ R(S4)={c},   W(S4)={w}
 
   - list the sequence of instructions that execute
 
-##### Characteristics of Process
+#### 进程特点 Characteristics of Process
 
 - Dynamic (动态性)
 - Concurrency (并发性)
 - Independent (独立性)
 - Asynchronous (异步性)
 
-##### Process Structure
+#### 进程结构 Process Structure
 
 - Programs
 - Datas
@@ -175,7 +175,7 @@ Suspended Processes
 
 意义：处理器空闲时，通过交换技术，使进程挂起状态。
 
-#### Reasons for Process Suspension
+#### 挂起的原因 Reasons for Process Suspension
 
 - **Swapping:** The operating system needs to release sufficient main memory to bring in a process that is ready to execute.
 - **Other OS reason:** The operating system may supend a background or utility process or a process that is supected of causing a problem.
@@ -195,7 +195,7 @@ Suspended Processes
 
 - 只有挂起它的进程才能使之由挂起状态转换为其他状态。
 
-#### Suspend vs Blocked
+#### 挂起与阻塞 Suspend vs Blocked
 
 - 是否只能挂起阻塞进程?
 
@@ -245,13 +245,11 @@ Add Two Suspend States
 
 注意：只要是supend，就有内外存交换。
 
-### 1.6 操作系统如何管理进程资源
+## 2 操作系统如何管理进程资源
 
 通过各种 tables(操作系统表)、原语操作。
 
-#### Operating System Control Structures
-
-操作系统控制结构
+### 2.1 操作系统控制结构 Operating System Control Structures
 
 操作系统用表来记录各种信息，若干个表来管理系统资源。
 
@@ -262,7 +260,7 @@ Add Two Suspend States
   - File Tables
   - Process Table
 
-##### Memory Tables
+#### Memory Tables
 
 - Allocation of main memory to processes.
   - 分配，内存
@@ -273,14 +271,14 @@ Add Two Suspend States
 - Information needed to manage virtual memory.
   - 虚拟存储
 
-##### I/O Tables
+#### I/O Tables
 
 - I/O device is available or assigned.
   - 空闲可用的，已经分配的
 - Status of I/O operation.
 - Location in main memory being used as the source or destination of the I/O transfer.
 
-##### File Tables
+#### File Tables
 
 - Existence of files.
 - Location on secondary memory.
@@ -289,7 +287,7 @@ Add Two Suspend States
 * Attributes.
 * Sometimes this information is maintained by a file-management system.
 
-##### Process Table
+#### Process Table
 
 - Where process is located.
 - Attributes necessary for its management.
@@ -297,7 +295,7 @@ Add Two Suspend States
   - Process state
   - Location in memory
 
-##### Process Location
+#### Process Location
 
 - Process includes set of programs to be executed.
   
@@ -315,7 +313,7 @@ Add Two Suspend States
   
   - Collection of program, data, stack, and attributes.
 
-##### Process image
+#### Process image
 
 - User Data
 
@@ -325,118 +323,122 @@ Add Two Suspend States
 
 ![1617007949684](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1617007949684.png)
 
-##### Process Control Block
+### 2.2 进程控制块 Process Control Block
 
-- 简称 PCB：是OS控制和管理进程时所用的基本数据结构。
+简称 PCB：是OS控制和管理进程时所用的基本数据结构。
 
-- 作用：PCB是相关进程存在于系统中的唯一标志，系统根据PCB而感知相关进程的存在。
+作用：PCB是相关进程存在于系统中的唯一标志，系统根据PCB而感知相关进程的存在。
 
-- Process identification
+#### Process identification
 
-  - Identifiers
-    - Identifier of this process(进程ID)
-    - Identifier of the process that created this process(parent process)(父进程ID)
-    - User identifier (用户ID)
+- Identifiers
+  - Identifier of this process(进程ID)
+  - Identifier of the process that created this process(parent process)(父进程ID)
+  - User identifier (用户ID)
 
-- Processor State Information
 
-  - User-Visible Registers (用户可见寄存器)   现代计算机多级存储体系最高一级就是用户可见寄存器
 
-    - A user-visible register is one that may be referenced by means of the machine language that the processor executes. (处理器可以直接访问的)
-    - Typically, there are from 8 to 32 of these registers, although some ==RISC== implementations have over 100. (CPU用硬件实现的少量经典指令集)
+#### Processor State Information
 
-  - Control and Status Registers (控制和状态寄存器)
+- User-Visible Registers (用户可见寄存器)   现代计算机多级存储体系最高一级就是用户可见寄存器
 
-    There are a variety of processor registers that are employed to control the operation of the processor. These include：
+  - A user-visible register is one that may be referenced by means of the machine language that the processor executes. (处理器可以直接访问的)
+  - Typically, there are from 8 to 32 of these registers, although some ==RISC== implementations have over 100. (CPU用硬件实现的少量经典指令集)
 
-    - Program counter: Contains the address of the next instruction to be fetched
+- Control and Status Registers (控制和状态寄存器)
 
-      程序计数器
+  There are a variety of processor registers that are employed to control the operation of the processor. These include：
 
-    - Condition codes: Result of the most recent arithmetic or logical operation (e.g,sign, zero,carry,equal, overflow)
+  - Program counter: Contains the address of the next instruction to be fetched
 
-      条件代码寄存器
+    程序计数器
 
-    - Status information: Includes interrupt enabled/disabled flags, execution mode
+  - Condition codes: Result of the most recent arithmetic or logical operation (e.g,sign, zero,carry,equal, overflow)
 
-      状态信息
+    条件代码寄存器
 
-  - Stack Pointers (堆栈指针)
+  - Status information: Includes interrupt enabled/disabled flags, execution mode
 
-    - Each process has one or more last-in-first-out(LIFO) system stacks associated with it. A stack is used to store parameters and calling addresses for procedure and system calls.
+    状态信息
 
-      先进后出 堆栈  存储一些过程调用参数
+- Stack Pointers (堆栈指针)
 
-    - The stack pointer points to the top of the stack.
+  - Each process has one or more last-in-first-out(LIFO) system stacks associated with it. A stack is used to store parameters and calling addresses for procedure and system calls.
 
-      堆栈指针 指向它的栈顶
+    先进后出 堆栈  存储一些过程调用参数
 
-- Process Control Information 
+  - The stack pointer points to the top of the stack.
 
-  - Scheduling and State Information (调度和状态信息)
+    堆栈指针 指向它的栈顶
 
-    - Process state: defines the readiness of the process to be scheduled for execution (e.g, running, ready,waiting, halted).
 
-      记录进程的状态
 
-    - Priority: One or more fields may be used to describe the scheduling priority of the process.
+#### Process Control Information 
 
-      优先级
+- Scheduling and State Information (调度和状态信息)
 
-    - Scheduling-related information: This will depend on the scheduling algorithm used.
+  - Process state: defines the readiness of the process to be scheduled for execution (e.g, running, ready,waiting, halted).
 
-    - Event: Identity of event the process is awaiting before it can be resumed.
+    记录进程的状态
 
-      记录什么事件  恢复之前
+  - Priority: One or more fields may be used to describe the scheduling priority of the process.
 
-  - Data Structuring
+    优先级
 
-    - A process may be linked to other process in a queue, ring, or some other structure
+  - Scheduling-related information: This will depend on the scheduling algorithm used.
 
-      进程之间是有关系的
+  - Event: Identity of event the process is awaiting before it can be resumed.
 
-    - A process may exhibit a parent-child (creator-created) relationship with another process
+    记录什么事件  恢复之前
 
-      展示 父子关系
+- Data Structuring
 
-    - The process control block may contain pointers to other processes to support these structures
+  - A process may be linked to other process in a queue, ring, or some other structure
 
-      通过指针实现这种关系
+    进程之间是有关系的
 
-  - Interprocess Communication (进程之间的通信)
+  - A process may exhibit a parent-child (creator-created) relationship with another process
 
-    - Various fags, signals, and messages may be associated with tommunication between two independent processes.
+    展示 父子关系
 
-      标志 信号 消息
+  - The process control block may contain pointers to other processes to support these structures
 
-  - Process Privileges (进程的一些特权保护)
+    通过指针实现这种关系
 
-    - Processes are granted privileges in terms of the memory that may be accessed and the types of
-      instructions that may be executed.
+- Interprocess Communication (进程之间的通信)
 
-      授予 特权 关于
+  - Various fags, signals, and messages may be associated with tommunication between two independent processes.
 
-  - Memory Management
+    标志 信号 消息
 
-    - This section may include pointers to `segment and/or page tables` that describe the virtual memory assigned to this process.
+- Process Privileges (进程的一些特权保护)
 
-      内存是分段划分还是分页划分
+  - Processes are granted privileges in terms of the memory that may be accessed and the types of
+    instructions that may be executed.
 
-  - Resource Ownership and Utilization (资源被占用和使用)
+    授予 特权 关于
 
-    - Resources controlled by the process may be indicated,such as opened files. A history of utilization of the processor or other resources may also be included; this information may be needed by the scheduler.
+- Memory Management
 
-#### Typical Function of an OS Kernel
+  - This section may include pointers to `segment and/or page tables` that describe the virtual memory assigned to this process.
 
-操作系统内核功能 
+    内存是分段划分还是分页划分
 
-资源管理功能（操作系统相当于电脑的资源管理器，企业会记）：
+- Resource Ownership and Utilization (资源被占用和使用)
+
+  - Resources controlled by the process may be indicated,such as opened files. A history of utilization of the processor or other resources may also be included; this information may be needed by the scheduler.
+
+### 2.3 操作系统内核功能  Typical Function of an OS Kernel
+
+#### 资源管理功能
+
+操作系统相当于电脑的资源管理器，企业会计
 
 - Process Management：进程创建和终止、调度、状态转换、同步和通信、管理PCB
 - Memory Management：为进程分配地址空间、数据对换、段/页式管理
 - I/O Management：缓存管理、为进程分配I/O通道和设备
 
-支撑功能：
+#### 支撑功能
 
 - Interrupt handling (中断处理)
 - Timing (时钟管理) 
@@ -444,28 +446,244 @@ Add Two Suspend States
 - Accounting (统计)
 - Monitoring (监测)
 
+## 3 原语 Process Control Primitives
+
+操作系统内核给用户提供系列的服务，这个服务以原语 PCP 的方式出现。
+
+- Process Switch    进程切换
+
+- Create and Terminate    创建与终止
+
+- Block and Wakeup    阻塞与唤醒
+
+- Suspend and Activate    挂起与激活
+
+### 3.1 进程切换 Process Switch
+
+什么时候进行进程切换（When to Switch a Process）
+
+- Clock interrupt
+  - process has executed for the maximum allowable time slice (时间片)
+- I/O interrupt
+- Memory fault (存储访问失效)
+  - memory address is in virtual memory so it must be brought into main memory
+- Trap (陷阱)
+  - error occurred
+  - may cause process to be moved to Exit state
+- Supervisor call (管理程序调入)
+  - such as file open
+
+进程切换时的状态变化（Change of Process State）
+
+- Save context of processor including program counter and other registers
+
+  保存处理器上下文，包括程序计数器和其他寄存器
+
+- Update the PCB of the process that is currently running
+
+  更新当前正在运行的进程的PCB数据
+
+- Move PCB to appropriate queue-ready, blocked 
+
+  将PCB移至适当的队列就绪状态，阻塞
+
+- Select another process for execution
+
+  启动调度程序，调度其他进程执行
+
+- Update the PCB of the process selected
+
+  更新被选择进程的PCB数据
+
+- Update memory-management data structures
+
+  更新内存管理的数据结构
+
+- Restore context of the selected process
+
+   恢复被选择执行的进程的上下文 
+
+#### 进程切换与模式切换
+
+- 进程的切换
+  - 保存第一个进程的上下文，修改他的PCB，修改内存数据，启动调度程序，调度新进程进来，恢复被选择的进程的上下文。
+- 模式切换
+  - 用户进程正在运行的时候，一般正常运行在用户态下，运行过程中，如果发生系统调用，用户态切换进入系统态（为了保护系统数据不受非法篡改，需要审核，判断是否有操作权限，审核的过程就叫软中断）审核通过，用户态切换到系统态成功。系统调用完成后，返回用户态。
+- 进程切换的时候，需要调度程序，调度程序就是系统调用命令，需要进行模式切换。还有中断程序，中断也是在系统态下面运行的。
+- 进程切换一定有模式切换，但是模式切换不一定有进程切换。
+
+总结：
+
+- Process Switch，是作用于进程之间的一种操作。当分派程序收回当前进程的CPU并准备把它分派给某个就绪进程时，该操作将被引用。
+
+- Mode Switch，是进程内部所引用的一种操作。当进程映像所包含的程序引用核心子系统所提供的系统调用时，该操作将被引用。
+
+  
+
+### 3.2 进程的创建 Process Creation
+
+1.Submission of a batch job
+
+2.User logs on
+
+3.Created to provide a service such as printing
+
+4.Process creates another process
+
+#### 创建原语 creat() 
+
+1. 为进程分配一个唯一标识号ID：主进程表中增加一个新的表项
+2. 为进程分配空间：用户地址空间、用户栈空间、PCB空间。若共享已有空间，则应建立相应的链接。
+3. 初始化PCB：进程标识、处理机状态信息、进程状态
+4. 建立链：若调度队列是链表，则将新进程插入到就绪或(就绪，挂起)链表
+
+总结：创建进程 = 分配资源，创建ID，分配PCB
+
+### 3.3 进程的终止 Process Termination
+
+- Batch job issues Halt instruction （暂停指令）
+- User logs off
+- Quit an application
+- Error and fault conditions
+
+终止原因 Reasons for Process Termination：
+
+- Normal completion    正常结束
+- Time limit eceeded     超时终止，执行时间超过预计时间
+- Memory unavaitable   内存不足,无法为进程分配所需的内存空间
+- Bounds violation      越界访问
+- Protection error    企图使用未允许用的数据，或操作方式错
+- Arithmetic error    计算错，如除零，或企图存储硬件允许的最大数
+- Time ovrrun          超时等待某事件发生
+- I/O failure    如找不到文件或多次重试仍无法读写文件，或无效操作
+- Invalid instruction      企图执行不存在的指令
+- Privileged instruction    企图执行特权指令
+- Data misuse      数据类型不符，或未初始化
+- Operating system intervention   操作员或OS干预，如发生死锁的时候
+- Parent terminates so child processes terminate 父进程终止
+- Parent request   进程自己要求
+
+#### 终止原语 destroy() 
+
+1. 根据被终止进程的标识符ID，找到其PCB，读出该进程的状态
+2. 若该进程为执行状态，则终止其执行，调度新进程执行
+3. 若该进程有子孙进程，则立即终止其所有子孙进程
+4. 将该进程的全部资源，或归还给其父进程，或归还给系统
+5. 将被终止进程的 PCB 从所在的队列中移出，等待其它程序来搜集信息
+
+僵尸进程  zombie ：僵死状态，不能够运行了。但PCB还在，还会存活一会儿供其他进程使用，比如统计数据。
+
+### 3.4 进程的阻塞与唤醒 Process Block and Wakeup
+
+阻塞的原因：
+
+- 请求系统服务
+
+- 启动某种操作：如I/O
+
+- 新数据尚未到达
+
+- 无新工作可做
+
+#### 阻塞原语 block()
+
+当出现阻塞事件，进程调用阻塞原语将自己阻塞。状态变为“阻塞状态”，并进入相应事件的阻塞队列。
+
+#### 唤醒原语 wakeup()
+
+当阻塞进程期待的事件发生，有关进程调用唤醒原语，将等待该事件的进程唤醒。状态变为Ready，插入就绪队列。
+
+### 3.5 进程的挂起与激活 Process Suspend and Active 
+
+#### 挂起原语 suspend()
+
+当出现挂起事件，系统利用挂起原语将指定进程或阻塞状态进程挂起。进程从内存换到外存，状态改变：
+
+Ready-->Ready,Suspend，插入相应队列。
+
+#### 激活原语 active()
+
+当激活事件发生，系统利用激活原语将指定进程激活。进程从外存换入到内存，状态改变：
+Ready,Suspend-->Ready。Blocked,Suspend-->Blocked，插入相应队列。
+
+注意：从外存把进程装回内存来，但不一定是原来的空间了。
+
+
+
+## 4. 线程 Thread()
+
+### 4.1 线程概述
+
+- An execution state (running, ready, etc.)
+- Saved thread context when not running.
+- Has an execution stack.
+- Some per-thread static storage for local variables.
+- Access to the memory and resources of its process.
+  - all threads of a process share this.
+
+####  Benefits of Threads 
+
+- Takes less time to create a new thread than a  process. 
+
+   创建过程，只需要很少的资源，所以很快
+
+- Less time to terminate a thread than a process.
+
+- Less time to switch between two threads within the same process.
+
+  同一进程内的线程切换，开销小
+
+- Since threads within the same process share memory and files, they can communicate with each other without invoking the kernel.
+
+#### Threads feature
+
+- Suspending a process involves suspending all threads of the process
+  - since all threads share the same address space.
+- Termination of a process, terminates all threads within the process.
+
+#### Thread States
+
+- Key states for a thread
+  - Running
+  - Ready
+  - Blocked
+
+- Operations associated with a change in thread state.
+  - Spawn(派生)，Spawn another thread
+  - Block
+  - Unblock
+  - Finish
+
+#### 多线程 Multithreading
+
+- Operating system supports multiple threads of execution within a single process.
+
+- MS-DOS supports a single thread.
+
+- UNIX supports multiple user processes but only supports one thread per process.
+
+  以前传统unix系统是单进程单线程，可以有多个进程现代unix，多用户多进程，一个进程里可以有多线程
+
+- Windows 2000, Solaris, Linux, Mach, and OS/2 support multiple threads.
+
+#### 线程与进程的关系
+
+主要还是程序、数据、PCB。
+
+![1619532680242](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1619532680242.png)
+
+
+
+### 线程状态与线程分类
+
+
+
 
 
 ```
-操作系统内核给用户提供系列的服务，这个服务以原语的方式出现
-进程切换
 
-进程的切换
-保存第一个进程的上下文，修改他的PCB
-修改内存数据
-启动调度程序，调度新进程进来，恢复被选择的进程的上下文
 
-模式切换
-用户进程正在运行的时候，一般正常运行在用户态下，运行过程中，如果发生系统调用，用户态切换进入系统态（为了保护系统数据不受非法篡改，需要审核，判断是否有操作权限，审核的过程就叫软中断）审核通过，用户态切换到系统态成功。
 
-系统调用完成后，返回用户态。
-
-进程切换的时候，需要调度程序，调度程序就是系统调用命令，需要进行模式切换。
-还有中断程序，中断也是在系统态下面运行的
-
-进程切换一定有模式切换，但是模式切换不一定有进程切换。
-
-创建进程=分配资源，创建ID，分配PCB
 
 ```
 
@@ -480,7 +698,5 @@ Add Two Suspend States
 但是线程不在分配资源，释放资源，所以系统开销就低了。还提高了并发度
 
 线程不在考虑程序空间，数据空间，共享进程的一切资源，但可能出现并发安全问题
-
-
 
 线程之间切换避免了进程切换，和模式切换

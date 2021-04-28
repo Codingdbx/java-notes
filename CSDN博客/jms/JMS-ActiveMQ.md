@@ -98,9 +98,32 @@ textMessage.setBooleanProperty("Invalide",true);
 ```java
 // 非持久化
 messageProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-//持久化
+// 持久化
 messageProducer.setDeliveryMode(DeliveryMode.PERSISTENT);
 ```
+
+#### 消息的订阅
+
+消息订阅分为非持久订阅(non-durable subscription)和持久订阅(durable subscription)。
+
+- Durable
+
+  持久订阅时，客户端向JMS注册一个识别自己身份的ID，当这个客户端处于离线时，JMS Provider 会为这个ID 保存所有发送到主题的消息，当客户再次连接到JMS Provider时，会根据自己的ID得到所有当自己处于离线时发送到主题的消息。 
+
+- Non-Durable
+
+  非持久订阅只有当客户端处于激活状态，也就是和JMS Provider保持连接状态才能收到发送到某个主题的消息，而当客户端处于离线状态，这个时间段发到主题的消息将会丢失，永远不会收到。
+
+
+
+- | 消息发送端     | 消息接收端                        | 可靠性及因素                                                 |
+  | -------------- | --------------------------------- | ------------------------------------------------------------ |
+  | PERSISTENT     | queue receiver/durable subscriber | 消费一次且仅消费一次。可靠性最好，但是占用服务器资源比较多。 |
+  | PERSISTENT     | non-durable subscriber            | 最多消费一次。这是由于non-durable subscriber决定的，如果消费端宕机或其他问题导致与JMS服务器断开连接，等下次再联上JMS服务器时的一系列消息，不为之保留。 |
+  | NON_PERSISTENT | queue receiver/durable subscriber | 最多消费一次。这是由于服务器的宕机会造成消息丢失。           |
+  | NON_PERSISTENT | non-durable subscriber            | 最多消费一次。这是由于服务器的宕机造成消息丢失，也可能是由于non-durable subscriber的性质所决定。 |
+
+
 
 
 
@@ -350,10 +373,11 @@ producer.send(textMessage, new AsyncCallback() {
 
 1.官网文档：http://activemq.apache.org/delay-and-schedule-message-delivery.html
 
-2.四大属性
+2.四个属性
 
-| AMQ_SCHEDULED_DELAY  | long   | The time in milliseconds that a message will wait before being scheduled to be delivered by the broker |
+| Property name        | type   | description                                                  |
 | -------------------- | ------ | ------------------------------------------------------------ |
+| AMQ_SCHEDULED_DELAY  | long   | The time in milliseconds that a message will wait before being scheduled to be delivered by the broker |
 | AMQ_SCHEDULED_PERIOD | long   | The time in milliseconds to wait after the start time to wait before scheduling the message again |
 | AMQ_SCHEDULED_REPEAT | int    | The number of times to repeat scheduling a message for delivery |
 | AMQ_SCHEDULED_CRON   | String | Use a Cron entry to set the schedule                         |
@@ -414,7 +438,18 @@ redeliveryPolicy.setMaximumRedeliveries(3);
 activeMQConnectionFactory.setRedeliveryPolicy(redeliveryPolicy);
 ```
 
+### Available Properties
 
+| Property                   | Default Value | Description                                                  |
+| -------------------------- | ------------- | ------------------------------------------------------------ |
+| `backOffMultiplier`        | `5`           | The back-off multiplier.                                     |
+| `collisionAvoidanceFactor` | `0.15`        | The percentage of range of collision avoidance if enabled.   |
+| `initialRedeliveryDelay`   | `1000L`       | The initial redelivery delay in milliseconds.                |
+| `maximumRedeliveries`      | `6`           | Sets the maximum number of times a message will be redelivered before it is considered a **poisoned pill** and returned to the broker so it can go to a Dead Letter Queue. Set to `-1` for unlimited redeliveries. |
+| `maximumRedeliveryDelay`   | `-1`          | Sets the maximum delivery delay that will be applied if the `useExponentialBackOff` option is set. (use value `-1` to define that no maximum be applied) (v5.5). |
+| `redeliveryDelay`          | `1000L`       | The delivery delay if `initialRedeliveryDelay=0` (v5.4).     |
+| `useCollisionAvoidance`    | `false`       | Should the redelivery policy use collision avoidance.        |
+| `useExponentialBackOff`    | `false`       | Should exponential back-off be used, i.e., to exponentially increase the timeout. |
 
 ### 6.4 死信队列    
 

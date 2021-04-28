@@ -375,7 +375,7 @@ hello kiti
 
 案例：
 
-```
+```shell
 #!/bin/bash
 for i in  "$*"
 	do
@@ -390,13 +390,38 @@ for y in "$@"
 
 输出：
 
-```
+```shell
 1 2 3 4
 1
 2
 3
 4
 ```
+
+案例2：
+
+```shell
+#!/bin/bash
+
+echo "number:$#"
+echo "scname:$0"
+echo "first :$1"
+echo "second:$2"
+echo "argume:$@"
+```
+
+输出：
+
+```shell
+# ./ddd.sh a b c
+number:3
+scname:./ddd.sh
+first :a
+second:b
+argume:a b c
+```
+
+
 
 ### 4.4 预定义变量
 
