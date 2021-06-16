@@ -508,6 +508,8 @@ daemon:x:2:2:daemon:/sbin:/sbin/nologin
 
 ## 4 条件判断
 
+注意：判断符两边一定要有空格。
+
 ### 4.1 按照文件类型进行判断
 
 |    作用     |                           测试选项                           |
@@ -615,12 +617,12 @@ yes
 no
 ```
 
-`[ "$aa"=="$bb" ] ` #判断两个变量的值是否相等
+`[ "$aa" == "$bb" ] ` #判断两个变量的值是否相等
 
-```
+```shell
 # aa=11  #给变量aa和变量bb赋值
 # bb=22
-# [ "$aa"=="$bb" ] && echo "yes" || echo "no"
+# [ "$aa" == "$bb" ] && echo "yes" || echo "no"
 no
 ```
 
@@ -636,7 +638,7 @@ no
 
 `[ -n "$aa" -a "$aa" -gt 23 ]` #判断变量aa是否有值，同时判断变量aa的是否大于23
 
-```
+```shell
 #aa=11
 # [ -n "$aa" -a "$aa" -gt 23 ] && echo "yes" || echo "no"  
 no

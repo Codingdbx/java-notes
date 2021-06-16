@@ -610,7 +610,7 @@ Ready,Suspend-->Ready。Blocked,Suspend-->Blocked，插入相应队列。
 
 
 
-## 4. 线程 Thread()
+## 4 线程 Thread
 
 ### 4.1 线程概述
 
@@ -674,20 +674,37 @@ Ready,Suspend-->Ready。Blocked,Suspend-->Blocked，插入相应队列。
 
 
 
-### 线程状态与线程分类
+### 4.2 线程状态与线程分类
 
+#### 线程状态  Thread States
 
+- Key states for a thread: Running, Ready, Blocked.
+- Operations associated with a change in thread state.
+  - Spawn(派生), Spawn another thread
+  - Block
+  - Unblock
+  - Finish
 
+#### 线程分类 Thread Types
 
+User-Level Threads
 
-```
+- All thread management is done by the application
+- The kernel is not aware of the existence of threads
+- 描述此类线程的数据结构以及控制此类线程的原语在核外子系统中实现
 
+Kernel-Level Threads
 
+- W2K, Linux, and OS/2 are examples of this approach
+- Kernel maintains context information for the process and the threads
+- Scheduling is done on a thread basis 调度是基于线程完成的
+- 描述此类线程的数据结构以及控制此类线程的原语在核心子系统中实现
 
+Combined Approaches 组合类型
 
-```
-
-
+- Example is Solaris
+- Thread creation done in the user space
+- Bulk(大批) of scheduling and synchronization of threads done in the user space 用户空间可以完成调度与同步
 
 
 
@@ -700,3 +717,704 @@ Ready,Suspend-->Ready。Blocked,Suspend-->Blocked，插入相应队列。
 线程不在考虑程序空间，数据空间，共享进程的一切资源，但可能出现并发安全问题
 
 线程之间切换避免了进程切换，和模式切换
+
+
+
+## 5 进程调度 Scheduling
+
+必须要从队列里面选择哪个作业的时候，才会有调度以及调度算法。
+
+### Learning objectives 学习目标
+
+By the end of this lecture you should be able to：
+
+- Explain what's Response Time(响应时间)，Turnaround time (周转时间)，Deadlines(截止时间)，Throughput(吞吐量)。
+- 理解：进程调度的目标、类型、原则。
+- 理解：Decision Mode: Nonpreemptive(非剩本) & Preemptive (剩本)。
+- 研究经典进程调度算法：
+  - FCFS
+  - Round Robin(轮转)
+  - Shortest Process Next
+  - Shortest Remaining Time
+  - Highest Response Ratio Next
+  - Feedback
+- 理解：Real-Time Systems 及类型。
+- 理解掌握：Real-Time Scheduling, Deadline Scheduling, Rate Monotonic Scheduling(速度单调)。
+
+### Process Scheduling 进程调度
+
+- Types of scheduling
+  - 按0S的类型划分
+    - 批处理调度、分时调度、实时调度、多处理机调度
+  - 按调度的层次划分
+    - Long-term scheduling(长程调度)
+    - Medium-term scheduling(中程调度)
+    - Short-term scheduling(短程调度)
+- Scheduling Criteria (标准)
+- Scheduling Algorithms
+- Real-Time Scheduling
+
+注意：
+
+长程调度：作业从外存到内存。 new --> ready
+
+中程调度：suspend --> ready
+
+短程调度：ready --> running
+
+![1622620507335](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1622620507335.png)
+
+### Types of scheduling(调度类型)
+
+#### Long-term scheduling
+
+又称为高级调度、作业调度，它为被调度作业或用户程序创建进程、分配必要的系统资源，并将新创建的进程插入就绪队列，等待Short-term scheduling。
+
+- Determines which programs are admitted to the system for processing
+
+  这取决于调度算法，如FCFS、短作业优先、基于优先权、响应比高者优先等调度算法
+
+- How may programs are admitted to the system ?
+
+  Controls the degree of multiprogramming
+
+- When does the scheduler be invoked?
+
+  - Each time a job terminates
+
+  - Processor is idle exceeds a certain threshold 阈值
+
+#### Medium-term scheduling
+
+又称为中级调度，它调度换出到磁盘的进程进入内存，准备执行。
+
+- 中程调度配合对换技术使用。
+- 其目的是为了提高内存的利用率和系统吞吐量。
+- 在多道程序度允许的情况下，从外存选择一个挂起状态的进程调度到内存(换入)。
+
+#### Short-term scheduling
+
+又称为进程调度，低级调度，调度内存中的就绪进程执行。
+
+* Known as the dispatcher：决定就绪队列 which 进程将获得处理机
+* Executes most frequently  频繁地
+* Invoked when an event occurs
+- Clock interrupts
+- l/O interrupts
+- Operating system calls
+- Signals(信号)
+
+### Scheduling Criteria (调度标准)
+
+User-oriented 面向用户：
+
+#### Response Time(响应时间)
+
+- Elapsed time between the submission(提交) of a request until there is output
+
+- 常用于评价分时系统的性能
+
+#### Turnaround time (周转时间)
+
+- 是指从作业提交给系统开始，到作业完成为止的这段时间间隔(也称为作业周转时间)
+- 常用于评价批处理系统的性能
+
+#### Deadlines (截止时间)
+
+- 是指某任务必须开始执行的最迟时间(Starting deadline)，或必须完成的最迟时间(Completion deadline)
+- 常用于评价实时系统的性能。
+
+System-oriented 面向系统：
+
+#### Throughput(吞吐量)
+
+- 单位时间内系统所完成的作业数
+- 用于评价批处理系统的性能
+
+#### Processor utilization(处理机利用率)
+
+- This is the percentage of time that the processor is busy.
+- Effective and efficient utilization of the processor.
+
+#### Balancing Resource(资源平衡)
+
+- Keep the resources of the system busy.
+- 适用于长程调度和中程调度.
+
+#### Fairness (公平性)
+
+- Process should be treated the same, and no process should suffer starvation.
+
+#### Priorities(优先级)
+
+- Scheduler will always choose a process of higher priority over one of lower priority.
+- Have multiple Ready queues to represent each level of priority.
+- Lower-priority may suffer starvation.
+  - allow a process to change its priority based on its age (生存期)or execution history.
+
+
+
+### Scheduling Algorithms(调度算法)
+
+#### Decision Mode(决策模式)
+
+- Nonpreemptive(非剥夺方式）
+  - Once a process is in the running state, it will continue until it terminates or blocks itself for I/O.
+  - 主要用于批处理系统.
+  - 不会中断.
+
+- Preemptive(剥夺方式)
+  - Currently running process may be interrupted and moved to the Ready state by the operating system.
+  - Allows for better service since any one process cannot monopolize the processor for very long.
+  - 主要用于实时性要求较高的实时系统及性能要求较高的批处理系统和分时系统.
+  - 会中断.
+
+#### Algorithms(算法)
+
+- First-Come-First-Served 先到先服务
+- Round Robin (Virtual round robin)  轮询调度算法
+- Shortest Process Next  短进程优先 
+- Shortest Remaining Time  最短剩余时间优先调度 
+- Highest Response Ratio Next  最高响应比优先算法
+- Feedback  排队算法
+
+##### First-Come-First-Served (FCFS)
+
+- Each process joins the Ready queue.
+- When the current process ceases(停止) to execute, the oldest process in the Ready queue is selected.
+- 非剥夺方式：一旦占有就要执行完，不会中断，执行完后下个进程才能执行.
+- 计算进程的平均周转时间.
+- A short process may have to wait a very long time before it can execute.
+- Favors CPU-bound processes.
+  - I/O processes have to wait until CPU-bound process completes.
+
+
+
+### Real-Time Systems 实时系统
+
+- Correctness of the system depends not only on the logical result of the computation but also on
+  the time at which the results are produced.
+
+- Tasks or processes attempt to control or react to events that take place in the outside world.
+
+- These events occur in "real time" and process must be able to keep up with them.
+
+#### Real-Time Systems 实时系统应用
+
+- Control of laboratory experiments
+- Process control plants
+- Robotics
+
+* Air traffic control
+* Telecommunications
+* Military command and control systems
+
+- 实时控制系统，指要求进行实时控制的系统。用于生产过程的控制，实时采集现场数据，并对所采集的数据进行及时处理。如飞机的自动驾驶系统，以及导弹的制导系统等。
+
+- 实时信息处理系统，指能对信息进行实时处理的系统。典型的实时信息处理系统有：飞机订票系统、情报检索系统等。
+
+#### Real-time Task 实时任务
+
+- 按任务执行时是否呈现周期性来划分
+  - periodic  (周期性)实时任务
+  - aperiodic (非周期性)实时任务，必须联系着一个deadline
+- 根据对截止时间的要求来划分
+  - hard real-time task(硬实时任务)，系统必须满足任务对截止时间的要求，否则可能出现难以预测的结
+    果。
+  - soft real-time task(软实时任务)
+
+### Scheduling Types 调度类型
+
+- Scheduling of a Real-Time Process 实时进程的调度
+
+- Real-Time Scheduling 实时调度
+
+- Deadine Scheduling 截止时间调度
+
+- Rate Monotonic Scheduling  速率单调调度
+
+#### Scheduling of a Real-Time Process 
+
+实时进程的调度
+
+##### Round Robin Preemptive Scheduler 
+
+(基于时间片的轮转调度法)
+
+- 响应时间在秒级。
+- 广泛应用于分时系统，也可用于一般的实时信息处理系统。
+- 不适合于要求严格的实时控制系统。
+
+##### Priority-driven Nonpreemptive Scheduler 
+
+(基于优先级非剥夺调度法)
+
+- 为实时任务赋予较高的优先级，将它插入就绪队列队首，只要正在执行的进程释放Processor，则立即调度该实时任务执行。
+- 响应时间一般在数百毫秒至数秒范围。
+- 多用于多道批处理系统，也可以用于要求不太严格的实时系统。
+
+##### Priority-driven Preemptive Scheduler
+
+ (基于优先级的剥夺调度法)
+
+- 当实时任务到达后，可以在时钟中断时，剥夺正在执行的低优先级进程的执行，调度执行高优先级的任务。
+- 响应时间较短，一般在几十毫秒或几毫秒。
+
+##### Immediate Preemptive Scheduler
+
+ (立即剥夺调度法)
+
+- 要求操作系统具有快速响应外部事件的能力。一旦出现外部中断，只要当前任务未处于临界区，便立即剥夺其执行，把处理机分配给请求中断的紧迫任务。
+- 调度时延可以降至100微秒，甚至更低。
+
+#### Real-Time Scheduling 
+
+实时调度
+
+- Static table-driven (静态表驱动调度法)
+  - Determines(确定) at run time when a task begins execution.
+
+- Static priority-driven preemptive (静态优先级剥夺调度法)
+  - Traditional priority-driven scheduler is used.
+
+- Dynamic planning-based (动态计划调度法)
+
+- Dynamic best effort (动态最大努力调度法)
+
+##### Static table-driven approaches
+
+- 用于调度周期性实时任务。
+- 按照任务周期到达的时间、执行时间、完成截止时间(ending deadline)以及任务的优先级，制订调度表，调度实时任务。
+- 最早截止时间优先(EDF)调度算法即属于此类。
+- 此类算法不灵活，任何任务的调度申请改动都会引起调度表的修改。
+
+##### Statie priority-driven preemptive approaches
+
+- 此类算法多用于非实时多道程序系统。
+- 优先级的确定方法很多，例如在分时系统中，可以对I/O bound (密集型)和 processor bound的进程赋予不同的优先级。
+- 实时系统中一般根据对任务的限定时间赋予优先级，例如速度单调算法(RM)即是为实时任务赋予静态优先级。
+
+##### Dynamic planning-based approaches
+
+- 当实时任务到达以后，系统为新到达的任务和正在执行的任务动态创建一张调度表。
+- 在当前执行进程不会错过其截止时间的条件下，如果也能使新到达任务在截止时间内完成，则立即调度执行新任务。
+
+##### Dynamic best effort approaches
+
+实现简单，广泛用于非周期性实时任务调度。当任务到达时，系统根据其属性赋予优先级，优先级高的先调度。例如最早截止时间优先EDF调度算法就采用了这种方法。这种算法总是尽最大努力尽早调度紧迫任务，因此称为“最大努力调度算法”缺点在于，当任务完成，或截止时间到达时，很难知道该任务是否满足其约束时间。
+
+#### Deadline Scheduling
+
+截止时间调度
+
+- Information used
+  - Ready time
+  - Starting deadline
+  - Completion deadine
+  - Processing time
+  - Resource requirements
+  - Priority
+  - Subtask scheduler：一个任务可以分解出强制子任务(mandatory subtask)和非强制子任务(optional subtask)。只有强制子任务拥有硬截止时间(hard deadline)。
+
+**Which task to schedule next?**
+
+Scheduling tasks with the earliest deadline minimized the fraction of tasks that miss their deadines.
+
+用最早的截止日期安排任务可以最大限度地减少错过截止日期的任务的比例。
+
+**What sort of preemption is allonwed?**
+
+- When starting deadlines are specified, then a nonpreemtive(非抢占式) scheduler makes sense.
+
+  在执行完强制子任务或临界区后，阻塞自己。
+
+- For a system with completion deadlines, a preemptive strategy is most appropriate.
+
+##### Earliest Deadline
+
+最早截止时间优先算法，简称ED
+
+- 常用调度算法
+- 若指定任务的Starting deadlines，则采用Nonpreemption，当某任务的开始截止时间到达时，正在执行的任务必须执行完其强制部分或临界区，释放CPU，调度开始截止时间到的任务执行。
+
+##### Periodic tasks with completion deadlines
+
+周期性任务实时调度算法
+
+- 由于此类任务是周期性的、可预测的，可采用静态表驱动之最早截止时间优先调度算法，使系统中的任务都能按要求完成。
+
+- 举例：周期性任务A和B，指定了它们的完成截止时间，任务A每隔20毫秒完成一次，任务B每隔50
+  毫秒完成一次。任务A每次需要执行10毫秒，任务B每次需要执行25毫秒。
+
+##### Aperiodic tasks with starting deadlines
+
+非周期性任务实时调度算法
+
+- 可以采用 最早截止时间优先调度算法 或 允许CPU空闲的EDF调度算法。
+- Earliest Deadline with Unuforced Ide Times (允许CPU空闲的EDF调度算法)，指优先调度最早截止时间的任务，并将它执行完毕才调度下一个任务。即使选定的任务未就绪，允许CPU空闲等待，也不能调度其他任务。尽管CPU的利用率不高，但这种调度算法可以保证系统中的任务都能按要求完成。
+
+##### Rate Monotonic Scheduling
+
+速度单调调度算法
+
+* Assigns priorities to tasks on the basis of their periods.
+* Highest-priority task is the one with the shortest period.
+* Period(任务周期)，指一个任务到达至下一任务到达之间的时间范围。
+* Rate(任务速度)，即周期(以秒计)的倒数，以赫兹为单位。
+
+Rate Monotonic Scheduling
+(速度单调调度算法)
+
+- 任务周期的结束，表示任务的硬截止时间。任务的执行时间不应超过任务周期。
+- CPU的利用率 = 任务执行时间/任务周期
+- 在RMS调度算法中，如果以任务速度为参数，则优先级函数是一个单调递增的函数。
+
+
+
+## 6 进程并发控制
+
+Learning objectives 并发学习的目标
+
+- Concurrency Control
+
+- Mutual Exclusion and Synchronization
+- Deadlock And Starvation
+
+By the end of this lecture you should be able to:
+
+- Esplain what's Concurreney, Synchronization, Mutual exclusion, Deadlock, Starvation, Critical sections
+
+- 掌握 Requirements for Mutual Exclusion
+- 掌握 Approaches of Mutual Exclusion: Software Approaches & Hardware Suppot: Semaphores, Monitors, Message Passing
+
+- 区别掌握 Types and meanings of Semaphores
+- 掌握3个经典问题的解决方法：Produer/Consumer Problem, Readers/Writers Problem, Dining Philosophers Problem
+
+- 理解 Conditions for Deadlock, Deadlock Prevention, Deadlock Avoidance, Deadlock Detection, Strategies once Deadlock Detected(检测到死锁后的策略), Banker's Algorithm (Safe State `vs` Unsafe State)
+
+Design Issues of Concurrency
+
+涉及到的并发问题 
+
+- Communication among processes
+
+- Sharing/Competing of resources
+
+- Synchronization of multiple processes
+
+- Allocation of processor time
+
+Difficulties with Concurrency
+
+并发挑战
+
+- Sharing global resources
+
+- Management of allocation of resources
+
+- Programming errors difficult to locate
+
+Operating System Concerns
+
+- Keep track of active processes: PCB  
+- Allocate and deallocate resources
+  - Processor time: scheduling
+  - Memory: virtual memory
+  - Files
+  - I/O devices
+  - Protect data and resources
+  - Result of process must be independent of the speed of execution of other concurrent processes.
+
+Process Interaction
+
+进程交互
+
+- Processes unaware of each other
+  - Competition
+  - Mutual exclusion, Deadlock, Starvation
+- Processes indirectly aware of each other
+  - Cooperation by sharing
+  - Mutual esclusion, Deadlock, Starvation, Data coherence(一致性)
+- Process directly aware of each other
+  - Cooperation by communication
+  - Deadlock, Starvation
+
+### 临界资源、临界区与互斥
+
+Competition Among Processes for Resources
+
+- Mutual Exclusion(互斥)
+  - Critical sections (临界区)
+  - Only one program at a time is allowed inits critical section.
+  - Eg. Only one process at a time is allowed to send command to the printer (critical resource).
+
+- Deadlock
+- Starvation
+
+Cooperation Among Processes by Sharing
+
+进程之间通过共享合作
+
+- Writing must be mutually exclusive.
+
+  写之间必须互斥，读写必须互斥。读读不需要互斥
+
+- Critical sections are used to provide data integrity (数据完整性)
+
+Cooperation Among Processes by Communication
+
+进程之间通过通信来合作
+
+- Messages are passed 
+  - Mutual exclusion is not a control requirement.
+
+- Possible to have deadlock
+  - Each process waiting for a message from the other process
+- Possible to have starvation
+  - Two processes sending message to each other while another process waits for a message.
+    3个进程，2个进程之间非常活跃，另外一个总是等待。
+
+### 互斥的要求
+
+Requirements for Mutual Exclusion
+
+- Only one process at a time is allowed in the critical section for a resource.
+
+- A process that halts(停止) in its non-critical section must do so without interfering(干扰) with other processes.  进程在非临界区终止了，也不能影响其他进程。
+- No deadlock or starvation.
+- A process must not be delayed access to a critical section when there is no other process using it.  一个进程不能被延迟访问临界区，当没有其他进程使用临界区的时候。
+- No assumptions are made about relative process speeds or number of processes. 不能假设其他进程的速度，和进程数量。
+- A process remains inside its critical section for a finite(有限) time only. 进程在临界区之间有限时间。
+
+
+
+### 实现互斥的方法
+
+Approaches of Mutual Exclusion，5种方法
+
+- Sofoware Approaches
+- Hardware Support
+- Semaphores
+- Monitors 管程
+- Message Passing
+
+#### Software Approaches 
+
+软件方式实现互斥
+
+- Memory access level 内存访问级别 (0,1)
+
+* Access to the same location in main memory are serialized(串行化) by some sort of memory arbiter( 内存仲裁器).
+
+* Dekker's Algorithm  德克尔算法
+
+* Peterson's Algorithm 彼得森算法
+
+  
+
+#### Hardware Support
+
+硬件方式实现互斥 
+
+Mutual Exclusion: Hardware Support
+
+##### Interrupt Disabling
+
+ 屏蔽中断 
+
+- A process runs until it invokes an operating-system service or until it is interrupted.
+
+- Disabling interrupts guarantees mutual exclusion.
+
+- 方法带来的问题：
+
+  - The price of this approach is high  代价很高
+
+  - Multiprocessing 多进程系统，Disabling interrupts on one processor will not guarantee mutual exchusion.
+
+##### Special Machine Instruction
+
+专用机器指令
+
+- Performed in a single instruetion cycle
+- Not subject to interference from other instructions (避免冲突)
+
+- Reading and writing
+- Reading and testing
+
+专用机器指令好处：一个机器指令过程中不会有中断点
+
+**Test and Set Instruction** 
+
+这是一条指令，不是几行代码。
+
+```shell
+function testset(vari:integer): boolean;
+    begin
+    if i=0 then
+    	begin
+            i:=1;
+            testset := true;
+   	 	end
+    else testset :=false;
+end.
+```
+
+**Exchange Instruction** 
+
+```shell
+procedure exchange(var r :register, var m :memory);
+var temp;
+begin
+    temp :=m;
+    m :=r;
+    r :=temp;
+end.
+```
+
+Mutual Exclusion Machine Instructions
+
+机器指令实现互斥的优缺点
+
+Advantages
+
+- Applicable to any number of processes on either a single processor or multiple processors sharing main memory.
+- It is simple and therefore easy to verify.
+- It can be used to support multiple critical sections.
+
+Disadvantages
+- Busy-waiting is employed. 忙等，占用处理器时间
+
+  下个进程又进不去临界区，又回到就绪队列，下次还会被调用。
+
+- Starvation is possible.
+
+  - when a process leaves a critical section and more than one process is waiting.
+
+- Deadlock is possible.
+  - If a low priority process has the critical region and a higher priority process needs, the higher
+  priority process will obtain(获得) the processor to wait for the critical region.
+
+#### Semaphores
+
+- Wait operation decrements the semaphore value
+- wait(s)：s-1
+- wait操作：申请资源且可能阻塞自己(s<0)
+- Signal operation increments semaphore value
+  - signal(s)：s+1
+  - signal操作：释放资源并唤醒阻塞进程(s<0)
+
+信号量的定义
+
+ - Special variable called a semaphore is used for signaling.
+- If a process is waiting for a signal, it is blocked until that signal is sent.
+- Wait and Signal operations can not be interrupted.
+- Queue is used to hold processes waiting on the semaphore.
+- Semaphore is a variable that has an integer value.
+  - May be initialized to a nonnegative number (非负整数).
+  - Wait and Signal are primitives (atomic, cannot be interrupted and each routine can be treated as an indivisible step).
+
+信号量的类型
+
+- 信号量分为：互斥信号量和资源信号量。
+- 互斥信号量用于申请或释放资源的使用权，常初始化为1。
+- 资源信号量用于申请或归还资源，可以初始化为大于1的正整数，表示系统中某类资源的可用个数。
+- wait 操作用于申请资源(或使用权)，进程执行wait原语时，可能会阻塞自己。
+- signal 操作用于释放资源(或归还资源使用权)，进程执行signal原语时，有责任唤醒一个阻塞进程。
+
+##### wait/signal Operations
+
+```shell
+type semaphore = record
+count :integer;
+queue :list of process
+end;
+vars s: semaphore;
+
+wait(s):
+s.count := s.count-1;
+if s.count < 0
+    then begin
+    block P;
+    insert P into s.queue;
+    end;
+
+signal(s):
+s.count := s.count+1;
+if s.count <= 0
+    then begin
+    wakeup the first P;
+    remove the P from s.queue;
+    end;
+```
+
+利用信号量实现互斥的通用模式：
+
+```shell
+program mutualesclusion;
+const n=..;              /*进程数*/
+var s: semaphore(:=1);   /*定义信号量s, s.count初始化为1*/
+procedure P(i:integer);
+begin
+    repeat
+        wait(s);
+        <临界区>;
+        signal(s);
+        <其余部分>
+    forever
+end;
+
+begin    				 /*主程序*/
+    parbegin
+        P(1); P(2);..P(n)
+    parend
+end;
+```
+
+##### Mutual Exclusion:Semaphores
+
+1.互斥信号量：申请/释放使用权，常初始化为1。
+2.资源信号量：申请/归还资源，资源信号量可以初始化为一个正整数(表示系统中某类资源的可用个数)，s.count的意义为:
+
+- s.count>0：表示还可执行，wait(s) 而不会阻塞的进程数(可用资源数)
+- s.count<0：表示 s.queue 队列中阻塞进程的个数(被阻塞进程数)
+
+##### s.count 的取值范围
+
+- 当仅有两个并发进程共享临界资源时，互斥信号量仅能取值0，1，-1。
+  其中，
+  - s.count=1，表示无进程进入临界区
+  - s.count=0，表示已有一个进程进入临界区
+  - s.count=-1，则表示已有一进程正在等待进入临界区
+
+- 当用s来实现n个进程的互斥时，s.count的取值范围为1~ -(n-1)。
+
+总结：操作系统内核以系统调用形式提供 wait 和 signal 原语，应用程序通过该系统调用实现进程间的互斥。
+工程实践证明，利用信号量方法实现进程互斥是高效的，一直被广泛采用。
+
+
+
+```
+Producer/Consumer Problem
+第2章进程与调度
+2.3进程并发
+2.3.5生产者/消费者问题
+- One or more producers are generating
+第3章存储管理
+data and placing data in a buffer.
+第4章I/O设备管理
+= A single consumer is taking items out of
+第5章文件管理
+the buffer one at time.
+- Only one producer or consumer may
+口要点
+access the buffer at any one time.
+1)生产者/消费者问题描述
+2)生产者/消费者必须互斥
+3)生产者/消费者必须同步
+
+```
+
+
+
+## 7 进程死锁
