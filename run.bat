@@ -18,6 +18,7 @@ echo                8.查看更新记录
 echo                9.进入git bash
 echo. ******************************************************************************
 
+echo git log 
 git log --oneline -5
 echo git pull origin master...
 git pull origin master
@@ -29,3 +30,5 @@ git push origin master
 
 rem Press any key to continue...
 pause
+
+exit;
