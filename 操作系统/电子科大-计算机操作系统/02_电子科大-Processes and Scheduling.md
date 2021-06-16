@@ -1141,7 +1141,7 @@ Process Interaction
 
 ### 临界资源、临界区与互斥
 
-Competition Among Processes for Resources
+##### Competition Among Processes for Resources
 
 - Mutual Exclusion(互斥)
   - Critical sections (临界区)
@@ -1151,7 +1151,7 @@ Competition Among Processes for Resources
 - Deadlock
 - Starvation
 
-Cooperation Among Processes by Sharing
+##### Cooperation Among Processes by Sharing
 
 进程之间通过共享合作
 
@@ -1161,7 +1161,7 @@ Cooperation Among Processes by Sharing
 
 - Critical sections are used to provide data integrity (数据完整性)
 
-Cooperation Among Processes by Communication
+##### Cooperation Among Processes by Communication
 
 进程之间通过通信来合作
 
@@ -1297,6 +1297,8 @@ Disadvantages
 
 #### Semaphores
 
+信号量
+
 - Wait operation decrements the semaphore value
 - wait(s)：s-1
 - wait操作：申请资源且可能阻塞自己(s<0)
@@ -1352,8 +1354,8 @@ if s.count <= 0
 
 ```shell
 program mutualesclusion;
-const n=..;              /*进程数*/
-var s: semaphore(:=1);   /*定义信号量s, s.count初始化为1*/
+const n=..;               #进程数
+var s: semaphore(:=1);    #定义信号量s, s.count初始化为1
 procedure P(i:integer);
 begin
     repeat
@@ -1364,7 +1366,7 @@ begin
     forever
 end;
 
-begin    				 /*主程序*/
+begin    				  #主程序
     parbegin
         P(1); P(2);..P(n)
     parend
@@ -1392,29 +1394,374 @@ end;
 总结：操作系统内核以系统调用形式提供 wait 和 signal 原语，应用程序通过该系统调用实现进程间的互斥。
 工程实践证明，利用信号量方法实现进程互斥是高效的，一直被广泛采用。
 
+##### Producer/Consumer Problem
+
+- One or more producers are generating data and placing data in a buffer.
+
+- A single consumer is taking items out of the buffer one at time.
+
+- Only one producer or consumer may access the buffer at any one time.
 
 
+
+任务及要求
+
+- buffer不能并行操作(互斥)，即某时刻只允许一个实体(producer or consumer)访问buffer。
+- 控制producer and consumer同步读/写buffer，即不能向满buffer写数据；不能在空buffer中取数据。
+
+如果不控制生产者/消费者
+
+![1623840575966](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1623840575966.png)
+
+- 指针in和out初始化指向缓冲区的第一个存储单元。
+- 生产者通过in指针向存储单元存放数据，一次存放一条数据，且in指针向后移一个位置。
+- 消费者从缓冲区中逐条取走数据，一次取一条数据，相应的存储单元变为“空”。每取走一条数据，out指针向后移一个存储单元位置。
+- 试想，如果不控制生产者与消费者，将会产生什么结果?
+
+生产者/消费者必须互斥
+
+- 生产者和消费者可能同时进入缓冲区，甚至可能同时读/写一个存储单元，将导致执行结果不确定。
+- 这显然是不允许的。必须使生产者和消费者互斥进入缓冲区。即，某时刻只允许一个实体(生产者或消费者)访问缓冲区，生产者互斥消费者和其它任何生产者。
+
+生产者/消费者必须同步
+
+- 生产者不能向满缓冲区写数据，消费者也不能在空缓冲区中取数据，即生产者与消费者必须同步。
+
+生产者/消费者问题解决流程：利用信号量实现生产者/消费者同步与互斥
+
+```shell
+program producer_consumer;
+const sizeofbuffer=...;   		 #缓冲区大小
+var s: semaphore(:=1);           #互斥信号量s，初始化为1
+var n: semaphore(:=0);           	  #资源信号量n，数据单元，初始化为0
+var e: semaphore(:=sizeofbuffer);      #资源信号量e，空存储单元
+
+procedure producer;
+begin
+    repeat
+        	生产一条数据;
+        wait(e);
+        wait(s);
+        	存入一条数据;
+        signal(s);
+        signal(n);
+    forever
+end;
+
+procedure consumer;
+begin
+    repeat
+        wait(n);
+        wait(s);
+       		取一条数据;
+        signal(s);
+        signal(e);
+        	消费数据;
+    forever
+end;
+
+#主程序
+begin           		
+    parbegin
+    	producer; consumer;
+    parend
+end;
 ```
-Producer/Consumer Problem
-第2章进程与调度
-2.3进程并发
-2.3.5生产者/消费者问题
-- One or more producers are generating
-第3章存储管理
-data and placing data in a buffer.
-第4章I/O设备管理
-= A single consumer is taking items out of
-第5章文件管理
-the buffer one at time.
-- Only one producer or consumer may
-口要点
-access the buffer at any one time.
-1)生产者/消费者问题描述
-2)生产者/消费者必须互斥
-3)生产者/消费者必须同步
 
+注意：
+
+1. 进程应该先申请资源信号量，再申请互斥信号量，顺序不能颠倒。
+2. 对任何信号量的wait与signal操作必须配对。同一进程中的多对wait与signal语句只能嵌套，不能交叉。
+3. 对同一个信号量的wait与signal可以不在同一个进程中。
+4. wait与signal语句不能颠倒顺序，wait语句一定先于signal语句。
+
+##### Readers/Writers Problem
+
+- Any number of readers may simultaneously read the file.
+
+- Only one writer at a time may write to the file.
+
+- If a writer is writing to the file, no reader may read it.
+
+可用于解决多个进程共享一个数据区(文件、内存区、一组寄存器等)，其中若干读进程只能读数据，若干写进程只能写数据等实际问题。
+
+读者优先的解决流程：
+
+- Readers have priority：指一旦有读者正在读数据，允许多个读者同时进入读数据，只有当全部读者退出，才允许写者进入写数据。
+
+- Writers are subject to starvation    写者易于导致饥饿
+
+```shell
+program readers_writers;
+const readcount:integer;    #统计读者个数
+var x,wsem:semaphore(:=1);  #互斥信号量，初始化为1
+
+#reader
+procedure reader;
+begin
+    repeat
+        wait(x);
+        readcount :=readcount+1;
+        if readcount=1 then wait(wsem);
+            signal(x);
+            读数据;
+            wait(x);
+            readcount :=readcount-1;
+        if readcount =0 then signal(wsem);
+        signal(x);
+    forever
+end;
+
+#writer
+procedure writer,
+begin
+    repeat
+        wait(wsem);
+        	写数据;
+        signal(wsem);
+    forever
+end;
+
+#主程序
+begin
+    readcount :=0;
+    parbegin
+    reader; writer;
+    parend
+end;
+```
+
+写者优先的解决流程：
+
+- Writers have priority：指只要有一个writer申请写数据，则不再允许新的reader进入读数据。
+
+```shell
+program readers_writers;
+const readcount,writecount: integer;
+var x,y,z,rsem,wsem: semaphore(:=1);
+
+#reader
+procedure reader;
+begin
+    repeat
+        wait(z);
+        wait(rsem);
+        wait(x);
+        readcount := readcount+1;
+        if readcount =1 then wait(wsem);
+        signal(x);
+        signal(rsem);
+        signal(z);
+        读数据;
+        wait(x);
+        readcount :=readcount-1;
+        if readcount =0 then singal(wsem);
+        signal(x);
+    forever
+end;
+
+#writer
+procedure writer;
+begin
+    repeat
+        wait(y);
+        writecount :=writecount+1;
+        if writecount =1 then wait(rsem);
+        signal(y);
+        wait(wsem);
+        写数据:
+        signal(wsem);
+        wait(y);
+        writecount :=writecount-1;
+        if writecount =0 then signal(rsem);
+        signal(y);
+    forever
+end;
+
+#主程序
+begin          
+readcount :=0; writecount:=0;
+parbegin
+reader; writer;
+parend
+end;
+```
+
+##### Summary of Mutual Exclusion
+
+1. 利用 wait、signal原语对Semaphore互操作实现，powerful and flexible。
+2. 可用软件方法实现互斥，如Dekker算法、Peterson算法等(但增加处理负荷)。
+3. 可用硬件或固件方法实现互斥，如屏蔽中断、Test and Set 指令等(属于可接受的忙等)。
+
+#### Monitors
+
+管程的方法
+
+- 用信号量实现互斥，编程容易出错(wait，signal的出现顺序和位置非常重要)。
+
+- Support at Programming-language level。
+- 管程是用并发 pascal、pascal plus、 Modula-2、Modula-3 等语言编写的程序，现在已形成了许多库函数。管程可以锁定任何对象，如链表或链表的元素等。
+- 用管程实现互斥比用信号量实现互斥，更简单、方便。
+
+管程是一个封装好的对象
+
+* Monitor is a software module，由若干过程、局部于管程的数据、初始化语句(组)组成
+* Chief characteristics 主要特点
+- Local data variables are accessible only by the monitor.
+- Process enters monitor by invoking one of its procedures.
+- Only one process may be executing in the monitor at  a time.
+
+#### Message Passing
+
+消息传递
+
+- Enforce mutual exclusion
+- Exchange information
+  - send (destination, message)
+  - receive (source, message)
+
+##### Synchronization
+
+- Sender and receiver may or may not be blocked (waiting for message).
+- Blocking send, blocking receive
+  - Both sender and receiver are blocked until message is delivered.
+  - Called a rendezvous (紧密同步，汇合).
+-  Nonblocking send, blocking receive
+  - Sender continues processing such as sending messages as quickly as possible.
+  - Receiver is blocked until the requested message arrives.
+- Nonblocking send, nonblocking receive
+  - Neither party is required to wait
+
+##### Addressing
+
+寻址
+
+- Direct addressing
+  - Send primitive includes a specific identifier of the destination process.
+  - Receive primitive could know ahead of time which process a message is expected.
+  - Receive primitive could use source parameter to return a value when the receive operation has been performed.
+- Indirect addressing
+  - messages are sent to a shared data structure consisting of queues.
+  - queues are called mailboxes.
+  - one process sends a message to the mailbox and the other process picks up the message from the mailbox.
+
+##### Message Format
+
+- Header
+  - Messape Type
+  - Destinaton ID
+  - Source ID
+  - Message Length
+  - Control Informaton
+- Body
+  - Message Contents
+
+##### Mutual Exclusion
+
+- 若采用 Nonblocking send, blocking receive
+- 多个进程共享邮箱`mutex`。若进程申请进入临界区，首先申请从`mutex`邮箱中接收一条消息。若邮箱空，则进程阻塞；若进程收到邮箱中的消息，则进入临界区，执行完毕退出，并将该消息放回邮箱`mutex`。该消息 as a token在进程间传递。
+
+利用消息传递实现互斥的通用模式：
+
+```shell
+program mutualexclusion;
+const n=...;			#进程数
+
+#P
+procedure P(i:integer);
+var msg:message;
+begin
+    repeat
+        receive(mutex,msg);     #从邮箱接收一条消息
+        <临界区>;
+        send(mutex,msg);        #将消息发回到邮箱
+        <其余部分>
+    forever
+end;
+
+#主程序
+begin
+    create_mailbox(mutex);   #创建邮箱
+    send(mutex,null);       #用户初始化，向邮箱发送一条空消息
+    parbegin
+        P(1);
+        P(2);
+        ...
+        P(n)
+    parend
+end;
+```
+
+##### Producer/Consumer Problem
+
+利用消息传递解决生产者消费者问题：
+
+- 解决有限buffer Producer/Consumer Problem
+- 设两个邮箱：
+  - Mayconsume：Producer存放数据，供Consumer取走(即buffer数据区)
+  - Mayproduce：存放空消息的buffer空间
+
+```shell
+program mutualexclusion;
+const capacity =...;    #消息缓冲区大小
+const null =...;   		#空消息
+
+#producer
+procedure producer;
+var pmsg:message;
+begin
+    while true do
+    begin
+        receive(mayproduce,pmsg);
+        pmsg:=produce;
+        send(mayconsume,pmsg);
+    end
+end;
+
+#consumer
+procedure consumer
+var cmsg:message;
+begin
+    while true do
+    begin
+        receive(mayconsume,cmsg);
+        consume(cmsg);
+        send(mayproduce,null);
+    end
+end;
+
+#主程序
+begin
+create_mailbox(mayproduce);
+create_mailbox(mayconsume);
+for i=1 to capacity do send(mayproduce,null);
+    parbegin
+        producer;
+        consumer;
+    parend
+end;
 ```
 
 
 
 ## 7 进程死锁
+
+Deadlock And Starvation
+
+- 产生死锁与饥饿的原因
+- 解决死锁的方法
+- 死锁/同步的经典问题：哲学家进餐问题
+
+Deadlock
+
+- Permanent blocking of a set of(一组进程) processes that either compete for system resources or communicate with each other. 因为相互竞争系统资源或是通信原因，造成的永久性的阻塞。
+- No efficient solution.
+- Involve conflicting needs for resources by two or more processes. 涉及两个或多个进程对资源的冲突需求。
+
+```
+
+
+
+
+```
+
