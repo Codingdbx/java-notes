@@ -31,4 +31,4 @@ git push origin master
 rem Press any key to continue...
 pause
 
-exit;
+exit
