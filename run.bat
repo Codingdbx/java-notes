@@ -1,4 +1,8 @@
 @echo off
+rem title
+title Git Working
+cls
+
 
 echo git pull origin master...
 git pull origin master
@@ -8,4 +12,4 @@ git commit -m "add new change"
 echo git push origin master...
 git push origin master
 
-pause>nul
+pause
