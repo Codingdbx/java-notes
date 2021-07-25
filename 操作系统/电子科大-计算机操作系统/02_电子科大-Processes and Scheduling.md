@@ -1758,7 +1758,89 @@ Deadlock
 - No efficient solution.
 - Involve conflicting needs for resources by two or more processes. 涉及两个或多个进程对资源的冲突需求。
 
+**案例：单进程死锁，互相竞争，占有对方的资源**
+
+Eg.Process P and Q compete two resources, Their general forms are：
+
 ```
+Process P        Process  Q
+...              ...
+Get A            Get B
+...              ...
+Get B            Get A
+...              ...
+Release A        Release B
+...              ...
+Release B        Release A
+```
+
+### Reusable Resources（可重用资源）
+
+- Used by one process at a time and not depleted (耗尽) by that use.
+- Processes obtain resources that they later release for reuse by other processes.
+- Processors, I/O channels, main and secondary memory, files, databases, and semaphores.
+- Deadlock occurs if each process holds one resource and requests the other.
+
+**Example of Deadlock:**
+
+Space is available for allocation of 200K bytes，and the following sequence of events occur.
+
+```
+P1                      P2
+...                     ...        
+Request 80K bytes;      Request 70K bytes;
+...                     ...
+Request 60K bytes;      Request 80K bytes;
+```
+
+### Consumable Resources(可消耗资源)
+
+- Created(produced) and destroyed(consumed) by a process.
+- Interrupts, signals, messages, and information in I/O buffers.
+
+**Example of Deadlock:**
+
+Deadlock occurs if receive is blocking.
+
+```java
+P1                    P2
+...                   ...
+Receive(P2);          Receive(P1);
+...                   ...
+Send(P2,M1);          Send(P1,M2);
+```
+
+此类死锁是由于设计失误造成的，很难发现，且潜伏期较长。
+
+### Conditions for Deadlock
+
+- Mutual exclusion (互斥)
+  - only one process may use a resource at a time.
+- Hold-and-wait (保持并等待)
+  - A process may hold allocated resources while awaiting assignment of other resources.
+
+- No preemption(不剥夺)
+  - No resource can be forcibly removed from a process holding it.
+- Circular wait (环路等待)
+  - A closed chain of processes exists, such that each process holds at least one resource needed by the next process in the chain.
+- 条件 `Mutual exclusion`、`Hold-and-wait`、`No preemption`是死锁产生的必要条件，而非充分条件。
+- 条件 `Circular wait` 是前3个条件产生的结果。
+
+### Deadlock Prevention(预防死锁)
+
+间接方法，禁止前3个条件之一的发生：
+
+1. 互斥：
+   - 是某些系统资源固有的属性，不能禁止。
+2. 禁止“保持并等待”条件：
+   - 要求进程一次性地申请其所需的全部资源。若系统中没有足够的资源可分配给它，则进程阻塞。
+3. 禁止“不剥夺“条件：
+   - ① 若一个进程占用了某些系统资源，又申请新的资源，则不能立即分配给它。必须让它首先释放出已占用资源，然后再重新申请。
+   - ② 若一个进程申请的资源被另一个进程占有，OS 可以剥夺低优先权进程的资源分配给高优先权的进程(要求此类可剥夺资源的状态易于保存和恢复，否则不能剥夺)。
+
+```
+
+
 
 
 
