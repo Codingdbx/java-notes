@@ -1774,7 +1774,7 @@ Release A        Release B
 Release B        Release A
 ```
 
-### Reusable Resources（可重用资源）
+### Reusable Resources(可重用资源)
 
 - Used by one process at a time and not depleted (耗尽) by that use.
 - Processes obtain resources that they later release for reuse by other processes.
@@ -1812,7 +1812,7 @@ Send(P2,M1);          Send(P1,M2);
 
 此类死锁是由于设计失误造成的，很难发现，且潜伏期较长。
 
-### Conditions for Deadlock
+### Conditions for Deadlock(死锁条件)
 
 - Mutual exclusion (互斥)
   - only one process may use a resource at a time.
@@ -1828,6 +1828,8 @@ Send(P2,M1);          Send(P1,M2);
 
 ### Deadlock Prevention(预防死锁)
 
+#### 间接方法
+
 间接方法，禁止前3个条件之一的发生：
 
 1. 互斥：
@@ -1838,12 +1840,189 @@ Send(P2,M1);          Send(P1,M2);
    - ① 若一个进程占用了某些系统资源，又申请新的资源，则不能立即分配给它。必须让它首先释放出已占用资源，然后再重新申请。
    - ② 若一个进程申请的资源被另一个进程占有，OS 可以剥夺低优先权进程的资源分配给高优先权的进程(要求此类可剥夺资源的状态易于保存和恢复，否则不能剥夺)。
 
+#### 直接方法
+
+直接方法，禁止条件4(环路等待)的发生：
+
+1. 即禁止“环路等往”条件：可以将系统的所有资源按类型不同进行线性排队，并赋予不同的序号。进程对某类资源的申请只能按照序号递增的方式进行。显然，此方法是低效的，它将影响进程执行的速度，甚至阻碍资源的正常分配。
+
+### Deadlock Avoidance(避免死锁)
+
+1. 预防死锁通过实施较强的限制条件实现，降低了系统性能。
+2. 避免死锁的关键在于为进程分配资源之前，首先通过计算，判断此次分配是否会导致死锁，只有不会导致死锁的分配才可实行。
+3. A decision is made dynamically whether the current resource allocation request will, if granted, potentially lead to a deadlock. 
+4. Requires knowledge of future process request.
+
+#### 2 Approaches to Deadlock Avoidance
+
+- Do not start a process if its demands might lead to deadlock.
+- Do not grant an incremental resource request to a process if this allocation might lead to deadlock.
+
+#### Deadlock Avoidance
+
+- Maximum resource requirement must be stated in advance (预先必须申明每个进程需要的资源总量)
+- Processes under consideration must be independent; no synchronization requirements
+  (进程之间相互独立，其执行顺序取决于系统安全，而非进程间的同步要求)
+- There must be a fixed number of resour ees to allocate (系统必须提供固定数量的资源供分配)
+- No process may exit while holding resources (若进程占有资源，则不能让其退出系统)
+
+
+
+### Resource Allocation Denial(拒绝)
+
+- Referred to as the banker's algorithm.
+- State of the system is the current allocation of resources to process.
+- **Safe state** is where there is atleast one sequence that does not result in deadlock.
+- **Unsafe state** is a state that is not safe.
+
+#### Safe State vs.Unsafe State
+
+- 并非所有不安全状态都是死锁状态
+- 当系统进入不安全状态后，便可能进入死锁状态
+- 只要系统处于安全状态，则可避免进入死锁状态。
+
+例如：假设系统中有3个进程P1、P2、P3，共有12台磁带机。进程P1共需要10台，P2、P3分别需要4台和9台。设T0时刻，进程P1、P2、P3已分别获得5台、2台和2台，尚有3台未分配，即图示。
+
+T0时刻：
+
+```shell
+进程     最大需求  已分配       可用
+P1       10      5           3
+P2       4       2
+P3       9       2
+```
+
+T0时刻系统是安全的，因为存在一个安全序列<P2，P1，P3>，即只要系统按此进程序列分配资源，每个进程都可顺利完成。
+
+但是，如果不按照安全序列分配资源，则系统可能会由安全状态进入不安全状态。
+
+例如，T0时刻以后，P3又申请1台磁带机。若系统将剩余3台中的1台分配给P3，则
+系统进入不安全状态。
+
+```shell
+进程     最大需求  已分配       可用
+P1       10      5           2
+P2       4       2
+P3       9       3
 ```
 
 
 
+### Banker's Algorithm (银行家算法)
 
+- 该算法可用于银行发放一笔贷款前，预测该笔贷款是否会引起银行资金周转问题。
+- 这里，银行的资金就类似于计算机系统的资源，贷款业务类似于计算机的资源分配。银行家算法能预测一笔贷款业务对银行是否是安全的，该算法也能预测一次资源分配对计算机系统是否是安全的。
+- 为实现银行家算法，系统中必须设置若干数据结构。
 
+#### Data structure(数据结构)
 
+1. 可利用资源向量`Available`：是一个具有m个元素的数组，其中的每一个元素代表一类可利用资源的数目，其初始值为系统中该类资源的最大可用数目。其值将随着该类资源的分配与回收而动态改变。Available[j] =k， 表示系统中现有Rj类资源k个。
+2. 最大需求矩阵`Max`：是一个n * m 的矩阵， 定义了系统中n个进程中的每一个进程对m类资源的最大需Max(i,j) =k，表示进程 i 对Rj类资源的最大需求数目为k个。
+3. 分配矩阵`Allocation`：是一个n * m 的矩阵，定义了系统中每一类资源的数量。例如，Allocation(i, j) =k， 表示进程i当前已分得Rj类资源的数目为k个。
+4. 需求矩阵`Need`：是一个n * m的矩阵， 用以表示每一个进程尚需的各类资源数。例如， Need[i, j]=k， 表示进程i还需要Rj类资源k个，方能完成其任务。
+
+上述三类矩阵存在下述关系:
+Need[i, j] = Max[i,j] - Allocation[i, j]
+
+设Requesti是进程P的请求向量。Requesti[j]=k表示进程Pi需要k个Rj类资源。当进程Pi发出资源请求后，系统按下述步骤进行检查：
+
+1. 如果， Requesti < Needi， 则转向步骤2；否则，出错。
+2. 如果， Requesti < Available， 则转向步骤3；否则，表示尚无足够资源可供分配，进程P，必须阻塞等待。
+3. 系统试探性地将Pi，申请的资源分配给它，并修改下列数据结构中的值：
+   Available := Available - Requesti;
+   Allocation := Allocation + Requesti;
+   Needi := Needi - Requesti;
+4. 系统利用安全性算法，检查此次资源分配以后，系统是否处于安全状态。若安全，才正式将资源分配给进
+   程Pi，完成本次资源分配；否则，试探分配失效，让进程Pi阻塞等待。
+
+### Security algorithm (安全性算法)
+
+(1) 设置两个工作向量：
+①设置一个数组Finish[n] 。当Finish[i] =True (0<=i<=n，n为系统中的进程数) 时，表
+示进程Pi可以获得其所需的全部资源，而顺利执行完成。
+
+设置一个临时向量Work， 表示系统可提供给进程继续运行的资源的集合。安仝性算法
+刚开始执行时， Work := Available
+
+(2) 从进程集合中找到一个满足下列条件的进程：
+
+Finish[i] =false；并且Need <= Work；
+若找到满足该条件的进程，则执行步骤(3)，否则执行步骤(4)；
+(3) 当进程Pi获得资源后，将顺利执行直至完成，并释放其所拥有的全部资源，故应执行以下操作：
+Work := Work + Allocation；以及 Finish[i] := True；转向步骤(2)；
+
+(4) 如果所有进程的Finish[i] =True，则表示系统处于安全状态，否则系统处于不安全状态。
+
+### Dining Philosophers Problem(哲学家就餐问题)
+
+描述：有5个哲学家，他们的生活方式是交替地进行思考和进餐。哲学家们共用一张圆桌，分别坐在周围的五张椅子上。圆桌中间放有一大碗面条，每个哲学家分别有1个盘子和1支叉子。如果哲学家想吃面条，则必须拿到靠其最近的左右两支叉子。进餐完毕，放下叉子继续思考。
+
+![1632379887742](C:\Users\Dongbixi\AppData\Roaming\Typora\typora-user-images\1632379887742.png)
+
+要求：设计一个合理的算法，使全部哲学家都能进餐(非同时) 算法必须避免死锁和饥饿，哲学家互斥共享叉子。
+
+Dining Philosophers Problem -by Semaphores
+
+```java
+Program diningphilosophers;
+var fork:array[0..4] of semaphore(:=1);
+i:integer;
+
+procedure philosopher(i:integer);
+begin
+    repeat
+        think();          /*哲学家正在思考*/
+        wait(fork[i]);  /*取其左边的筷子*/
+        wait(fork[(i+1) mod 5]);    /*取其右边的筷子*/
+        eat();                        /*吃面条*/
+        signal(fork[(i+1) mod 5]);  /*放回右边的筷子*/
+        signal(fork[i]);            /*放回左边的筷子*/
+	forever
+end;
+
+begin
+    parbegin
+        philosopher(0); 
+        philosopher(1); 
+        philosopher(2); 
+        philosopher(3); 
+        philosopher(4);
+    parend
+end;	    
+       
+```
+
+- 可能产生死锁
+- 可行的解决方案：只允许4个哲学家同时进餐厅用餐，则至少有一个哲学家可以拿到两支叉子进餐，完毕，放下叉子，其他哲学家就可进餐。不会出现死锁和饥饿
+
+```java
+Program diningphilosophers;
+var fork:array[0..4] of semaphore(:=1);
+room:semaphore(:=4);
+i:integer;
+
+procedure philosopher(i:integer);
+begin
+    repeat
+        think();         /*哲学家正在思考*/
+        wait(room);    /*第5位哲学家将被阻塞在room信号量队列*/
+        wait(fork[i]); /*取其左边的筷子*/
+        wait(fork[(i+1) mod 5]); /*取其右边的筷子*/
+        eat();					 /*吃面条*/
+        signal(fork[(i+1) mod 5]);  /*放回右边的筷子*/
+        signal(fork[i]);            /*放回左边的筷子*/
+        signal(room);               /*唤醒阻塞在room信号量队列中的哲学家*/
+    forever
+end;
+           
+begin
+    parbegin
+        philosopher(0); 
+        philosopher(1); 
+        philosopher(2); 
+        philosopher(3); 
+        philosopher(4);
+    parend
+end;
 ```
 
